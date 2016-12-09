@@ -1,68 +1,28 @@
-#include <iostream>
-#include <map>
-#include <list>
 
-using byte = unsigned char;
+#include "descriptor/studentListDescriptor.h"
+#include "descriptor/studentNodeDescriptor.h"
+#include "descriptor/studentDescriptor.h"
+#include "descriptor/lectureNodeDescriptor.h"
+#include "descriptor/lectrueDescriptor.h"
 
-class TypeDescriptor {
-public:
-    int objSize;
-    int *pointers;
+#include "entities/student.h"
 
-    TypeDescriptor(int objsize) : objSize(objSize) {}
-};
-
-class StudentDescriptor : public TypeDescriptor {
-public:
-    StudentDescriptor() : TypeDescriptor(12) {
-        pointers = new int[3];
-        pointers[0] = 4;
-        pointers[1] = 8;
-        pointers[2] = -8;
-    }
-};
-
-class LectureDescriptor : public TypeDescriptor {
-public:
-    LectureDescriptor() : TypeDescriptor(12) {
-        pointers = new int[2];
-        pointers[0] = 4;
-        pointers[1] = -4;
-    }
-};
-
-class Block {
-public:
-    TypeDescriptor *descriptor;
-    int size;
-    byte *data;
-};
-
-class Heap {
-    //static Block free = new Block(32 * 1024);
-
-    //static std::map<char *, Block> descriptors;
-
-public:
-    static byte *alloc(char *name) {
-        //Block typeBlock = descriptors[name];
-        //Block allocBlock = alloc(typeBlock.objSize);
-        //return (int *) allocBlock;
-    }
-
-    static void registered(char *name, TypeDescriptor *typeDescriptor) {
-        // Block block = alloc(typeDescriptor.objSize);
-        //block.data = typeDescriptor;
-        //descriptors[name] = block;
-        //return (int *) block;
-    }
-
-};
+#include "heap.h"
 
 int main() {
+    StudentListDescriptor *studentListDescriptor = new StudentListDescriptor();
+    StudentNodeDescriptor *studentNodeDescriptor = new StudentNodeDescriptor();
     StudentDescriptor *studentDescriptor = new StudentDescriptor();
+    LectureNodeDescriptor *lectureNodeDescriptor = new LectureNodeDescriptor();
     LectureDescriptor *lectureDescriptor = new LectureDescriptor();
+
+    Heap::registered("StudentList", studentListDescriptor);
+    Heap::registered("StudentNode", studentNodeDescriptor);
     Heap::registered("Student", studentDescriptor);
+
+    Heap::registered("LectureNode", lectureNodeDescriptor);
     Heap::registered("Lecture", lectureDescriptor);
+
+    //Student *student = (Student *) Heap::alloc("Student");
     return 0;
 }
