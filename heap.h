@@ -5,7 +5,7 @@
 #ifndef GARBAGECOLLECTOR_HEAP_H
 #define GARBAGECOLLECTOR_HEAP_H
 
-#include "descriptor/typeDescriptor.h"
+#include "descriptors/typeDescriptor.h"
 #include <string>
 #include <map>
 
