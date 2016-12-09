@@ -1,80 +1,68 @@
 #include <iostream>
 #include <map>
+#include <list>
+
+using byte = unsigned char;
 
 class TypeDescriptor {
-
 public:
-    TypeDescriptor(int objsize) : objSize(objSize) {}
-
     int objSize;
+    int *pointers;
+
+    TypeDescriptor(int objsize) : objSize(objSize) {}
+};
+
+class StudentDescriptor : public TypeDescriptor {
+public:
+    StudentDescriptor() : TypeDescriptor(12) {
+        pointers = new int[3];
+        pointers[0] = 4;
+        pointers[1] = 8;
+        pointers[2] = -8;
+    }
+};
+
+class LectureDescriptor : public TypeDescriptor {
+public:
+    LectureDescriptor() : TypeDescriptor(12) {
+        pointers = new int[2];
+        pointers[0] = 4;
+        pointers[1] = -4;
+    }
 };
 
 class Block {
-    int len;
-    bool used;
-    Block next;
-    int* data;
-
 public:
-    Block(int len) : len(len), used(false) {}
+    TypeDescriptor *descriptor;
+    int size;
+    byte *data;
 };
 
 class Heap {
-    static Block free = new Block(32 * 1024);
+    //static Block free = new Block(32 * 1024);
 
-    static std::map<char *, Block> descriptors;
-
-
-    static int alloc(int size) {
-        Block start = free;
-        Block prev = free;
-        free = free.next;
-        while (free.len < size + 4 && free != start) {
-            prev = free;
-            free = free.next;
-        }
-        if (free.len < size + 4) {
-            exit(-5); // TODO: throw error
-        } else {
-            Block p = free;
-            int newLen = p.len - (size + 4);
-            if (newLen >= 8) { // split block
-                p = new Block(p - 4 + p.len - size);
-                p.len = size + 4;
-                free.len = newLen;
-            } else if (free == prev) { // last free block
-                free = null;
-            } else { // remove block from list
-                prev.next = free.next;
-                free = prev;
-            }
-            //Set all data bytes in block p to 0;
-            p.used = true;
-            return p;
-        }
-
-    }
+    //static std::map<char *, Block> descriptors;
 
 public:
-    static int alloc(char *name) {
-        Block typeBlock = descriptors[name];
-        Block allocBlock = alloc(typeBlock.objSize);
-        return (int *) allocBlock;
+    static byte *alloc(char *name) {
+        //Block typeBlock = descriptors[name];
+        //Block allocBlock = alloc(typeBlock.objSize);
+        //return (int *) allocBlock;
     }
 
-    static int registered(char *name, TypeDescriptor typeDescriptor) {
-        Block block = alloc(typeDescriptor.objSize);
-        block.data = typeDescriptor;
-        descriptors[name] = block;
-        return (int *) block;
+    static void registered(char *name, TypeDescriptor *typeDescriptor) {
+        // Block block = alloc(typeDescriptor.objSize);
+        //block.data = typeDescriptor;
+        //descriptors[name] = block;
+        //return (int *) block;
     }
 
 };
 
 int main() {
-    TypeDescriptor typeDesc(10);
-
-    Heap::registedr(typeDesc);
-
+    StudentDescriptor *studentDescriptor = new StudentDescriptor();
+    LectureDescriptor *lectureDescriptor = new LectureDescriptor();
+    Heap::registered("Student", studentDescriptor);
+    Heap::registered("Lecture", lectureDescriptor);
     return 0;
 }
