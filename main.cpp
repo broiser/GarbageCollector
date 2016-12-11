@@ -4,7 +4,11 @@
 #include "descriptors/lectureNodeDescriptor.h"
 #include "descriptors/lectrueDescriptor.h"
 
+#include "entities/studentList.h"
+#include "entities/studentNode.h"
 #include "entities/student.h"
+#include "entities/lectureNode.h"
+#include "entities/lecture.h"
 
 #include "heap.h"
 
@@ -22,6 +26,7 @@ int main() {
     Heap::registered("LectureNode", lectureNodeDescriptor);
     Heap::registered("Lecture", lectureDescriptor);
 
-    //Student *student = (Student *) Heap::alloc("Student");
+    Student* student = (Student*) Heap::alloc("Student");
+    //StudentList* studentList = (StudentList *) Heap::alloc("StudentList");
     return 0;
 }

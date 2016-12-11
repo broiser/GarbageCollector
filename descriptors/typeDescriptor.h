@@ -10,12 +10,9 @@ public:
     int objSize;
     int *pointers;
 
-    TypeDescriptor(int size);
+    TypeDescriptor(int size){
+        objSize = size;
+    };
 };
-
-TypeDescriptor::TypeDescriptor(int size) {
-    objSize = size;
-}
-
 
 #endif //GARBAGECOLLECTOR_TYPEDESCRIPTOR_H

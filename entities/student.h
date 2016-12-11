@@ -5,17 +5,18 @@
 #ifndef GARBAGECOLLECTOR_STUDENT_H
 #define GARBAGECOLLECTOR_STUDENT_H
 
-#include "lectNode.h"
+#include "lectureNode.h"
 
 class Student{
 public:
     int id;
     string name;
-    LectNode* lect;
+    LectureNode* lect;
 
     void add(Lecture lecture){
 
     }
+
     void remove(Lecture lecture){
 
     }

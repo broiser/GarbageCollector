@@ -7,9 +7,9 @@
 
 #include "lecture.h"
 
-class LectNode {
+class LectureNode {
 public:
-    LectNode *next;
+    LectureNode *next;
     Lecture lect;
 };
 

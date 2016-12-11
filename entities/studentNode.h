@@ -7,12 +7,12 @@
 
 #include "student.h"
 
-class StudNode {
+class StudentNode {
 public:
-    StudNode *next = NULL;
+    StudentNode *next = NULL;
     Student stud;
 
-    StudNode(Student student) {
+    StudentNode(Student student) {
         stud = student;
     }
 };
