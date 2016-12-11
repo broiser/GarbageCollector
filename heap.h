@@ -6,20 +6,13 @@
 #define GARBAGECOLLECTOR_HEAP_H
 
 #include "descriptors/typeDescriptor.h"
+#include "block.h"
 #include <string>
 #include <map>
 #include <stdio.h>
 #include <stdlib.h>
 
 using namespace std;
-using byte = unsigned char;
-
-class Block {
-public:
-    TypeDescriptor *descriptor;
-    int size;
-    byte *data;
-};
 
 class Heap {
     using TypeDescriptorMap = map<string, TypeDescriptor *>;
@@ -39,7 +32,7 @@ private:
     static TypeDescriptorMap descriptors;
     static Block *free;
 
-    static Block* alloc(int size) {
+    static Block *alloc(int size) {
         return new Block();
     }
 };
