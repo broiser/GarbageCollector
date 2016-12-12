@@ -26,7 +26,18 @@ int main() {
     Heap::registered("LectureNode", lectureNodeDescriptor);
     Heap::registered("Lecture", lectureDescriptor);
 
-    Student* student = (Student*) Heap::alloc("Student");
+    //Student* student = (Student*) Heap::alloc("Student");
     //StudentList* studentList = (StudentList *) Heap::alloc("StudentList");
+
+    //Block* block = new Block();
+    //block->tag = (int *) &studentDescriptor;
+    //block->setFree(true);
+    //bool free = block->isFree();
+    //block->setFree(false);
+    //bool free2 = block->isFree();
+    //block->setMarked(true);
+    //bool marked = block->isMarked();
+    //block->setMarked(false);
+    //bool marked2 = block->isMarked();
     return 0;
 }

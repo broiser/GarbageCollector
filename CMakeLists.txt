@@ -5,5 +5,5 @@ include_directories()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES main.cpp block.h)
+set(SOURCE_FILES main.cpp)
 add_executable(GarbageCollector ${SOURCE_FILES})
