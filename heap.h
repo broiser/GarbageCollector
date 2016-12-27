@@ -35,7 +35,7 @@ public:
         block->len = len;
         block->next = block;
         TypeDescriptor *dummyDescriptor = new DummyDescriptor();
-        block->tag = &dummyDescriptor;
+        block->tag = dummyDescriptor;
         block->setFree(true);
         return block;
     }
@@ -69,8 +69,8 @@ private:
             }
             //Set all data bytes in block p to 0
             p->initData();
-            p->tag = &typeDescriptor;
-            p->setMarked(true);
+            p->tag = typeDescriptor;
+            p->setFree(false);
             return p;
         }
     }

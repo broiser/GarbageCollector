@@ -10,7 +10,8 @@
 class DummyDescriptor : public TypeDescriptor {
 public:
     DummyDescriptor() : TypeDescriptor(8) {
-        pointers = new int[0];
+        pointers = new int[1];
+        pointers[0] = -4;
     }
 };
 

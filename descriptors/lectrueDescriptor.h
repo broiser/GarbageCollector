@@ -10,11 +10,9 @@
 class LectureDescriptor : public TypeDescriptor {
 public:
     LectureDescriptor() : TypeDescriptor(12) {
-        pointers = new int[4];
-        pointers[0] = 0;
-        pointers[1] = 4;
-        pointers[2] = 8;
-        pointers[3] = -8;
+        pointers = new int[2];
+        pointers[0] = 4;
+        pointers[1] = -8;
     }
 };
 

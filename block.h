@@ -11,41 +11,53 @@ using byte = unsigned char;
 
 class Block {
 public:
-    TypeDescriptor **tag;
+    TypeDescriptor *tag;
     int len;
     Block *next;
     byte *data;
 
     void initData() {
-        data = {};
+        data = new byte[len];
+        for (int i = 0; i < len; i++) {
+            *(data + i) = 0;
+        }
     }
 
     bool isFree() {
-        int *pointer = (int*) tag;
-        return ((*pointer) & 2) == 2;
+        uintptr_t address = (uintptr_t) tag;
+        return ((address) & 2) == 2;
     }
 
     bool isMarked() {
-        int *pointer = (int*) tag;
-        return ((*pointer) & 1) == 1;
+        uintptr_t address = (uintptr_t) tag;
+        return ((address) & 1) == 1;
     }
 
     void setFree(bool free) {
-        int *address = (int*) tag;
+        uintptr_t address = (uintptr_t) tag;
         if (free) {
-            *address = *address | (1 << 1);
+            address = address | (1 << 1);
         } else {
-            *address = *address & ~(1 << 1);
+            address = address & ~(1 << 1);
         }
+        tag = (TypeDescriptor *) address;
     }
 
     void setMarked(bool marked) {
-        int *address = (int*) tag;
+        uintptr_t address = (uintptr_t) tag;
         if (marked) {
-            *address = *address | (1 << 0);
+            address = address | (1 << 0);
         } else {
-            *address = *address & ~(1 << 0);
+            address = address & ~(1 << 0);
         }
+        tag = (TypeDescriptor *) address;
+        TypeDescriptor *desc = getTypeDescriptor();
+    }
+
+    TypeDescriptor* getTypeDescriptor() {
+        uintptr_t address = (uintptr_t) tag;
+        uintptr_t typeDescriptorAddress = address & -4;
+        return (TypeDescriptor *) typeDescriptorAddress;
     }
 };
 

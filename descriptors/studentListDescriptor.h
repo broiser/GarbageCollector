@@ -12,7 +12,7 @@ public:
     StudentListDescriptor() : TypeDescriptor(4) {
         pointers = new int[2];
         pointers[0] = 0;
-        pointers[1] = -0;
+        pointers[1] = -8;
     }
 };
 

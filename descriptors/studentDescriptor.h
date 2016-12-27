@@ -13,7 +13,7 @@ public:
         pointers = new int[3];
         pointers[0] = 4;
         pointers[1] = 8;
-        pointers[2] = -8;
+        pointers[2] = -12;
     }
 };
 
