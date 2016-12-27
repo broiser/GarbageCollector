@@ -11,33 +11,40 @@ using byte = unsigned char;
 
 class Block {
 public:
-    int *tag;
+    TypeDescriptor **tag;
     int len;
     Block *next;
     byte *data;
 
+    void initData() {
+        data = {};
+    }
 
     bool isFree() {
-        return ((*tag) & (1 << (1))) == (1 << (1));
+        int *pointer = (int*) tag;
+        return ((*pointer) & 2) == 2;
     }
 
     bool isMarked() {
-        return ((*tag) & (1 << (0))) == (1 << (0));
+        int *pointer = (int*) tag;
+        return ((*pointer) & 1) == 1;
     }
 
     void setFree(bool free) {
+        int *address = (int*) tag;
         if (free) {
-            *tag = *tag | 1 << 1;
+            *address = *address | (1 << 1);
         } else {
-            *tag = *tag & ~(1 << 1);
+            *address = *address & ~(1 << 1);
         }
     }
 
     void setMarked(bool marked) {
+        int *address = (int*) tag;
         if (marked) {
-            *tag = *tag | 1 << 0;
+            *address = *address | (1 << 0);
         } else {
-            *tag = *tag & ~(1 << 0);
+            *address = *address & ~(1 << 0);
         }
     }
 };

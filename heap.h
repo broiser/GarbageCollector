@@ -6,6 +6,7 @@
 #define GARBAGECOLLECTOR_HEAP_H
 
 #include "descriptors/typeDescriptor.h"
+#include "descriptors/dummyDescriptor.h"
 #include "block.h"
 #include <string>
 #include <map>
@@ -20,8 +21,7 @@ class Heap {
 public:
     static byte *alloc(string name) {
         TypeDescriptor *typeDescriptor = descriptors[name];
-        Block *allocBlock = alloc(typeDescriptor->objSize);
-        allocBlock->tag = (int *) &typeDescriptor;
+        Block *allocBlock = alloc(typeDescriptor);
         return allocBlock->data;
     }
 
@@ -29,12 +29,23 @@ public:
         descriptors[name] = typeDescriptor;
     }
 
+public:
+    static Block* createBlock(byte* data, int len) {
+        Block *block = (Block *) data;
+        block->len = len;
+        block->next = block;
+        TypeDescriptor *dummyDescriptor = new DummyDescriptor();
+        block->tag = &dummyDescriptor;
+        block->setFree(true);
+        return block;
+    }
 private:
     static TypeDescriptorMap descriptors;
     static Block *free;
 
-    static Block *alloc(int size) {
-        /*Block *start = free;
+    static Block *alloc(TypeDescriptor *typeDescriptor) {
+        int size = typeDescriptor->objSize;
+        Block *start = free;
         Block *prev = free;
         free = free->next;
         while (free->len < size + 4 && free != start) {
@@ -47,7 +58,7 @@ private:
             Block *p = free;
             int newLen = p->len - (size + 4);
             if (newLen >= 8) { // split block
-                p = createFreeBlock(p - 4 + p->len - size);
+                p = p - 4 + p->len - size; // add new block with pointer arithmetic
                 p->len = size + 4;
                 free->len = newLen;
             } else if (free == prev) { // last free block
@@ -56,10 +67,12 @@ private:
                 prev->next = free->next;
                 free = prev;
             }
-            //Set all data bytes in block p to 0;
-            //p->used = true;
-        }*/
-        return new Block();
+            //Set all data bytes in block p to 0
+            p->initData();
+            p->tag = &typeDescriptor;
+            p->setMarked(true);
+            return p;
+        }
     }
 };
 
@@ -68,6 +81,6 @@ Heap::TypeDescriptorMap Heap::descriptors = [] {
     return ret;
 }();
 
-Block *Heap::free = (Block *) calloc(32 * 1024, sizeof(byte));
+Block *Heap::free = Heap::createBlock((byte *) calloc(32 * 1024, sizeof(byte)), 32 * 1024);
 
 #endif //GARBAGECOLLECTOR_HEAP_H

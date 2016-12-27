@@ -26,7 +26,8 @@ int main() {
     Heap::registered("LectureNode", lectureNodeDescriptor);
     Heap::registered("Lecture", lectureDescriptor);
 
-    //Student* student = (Student*) Heap::alloc("Student");
+    Student* student = (Student*) Heap::alloc("Student");
+    printf("Adr: %p", student);
     //StudentList* studentList = (StudentList *) Heap::alloc("StudentList");
 
     //Block* block = new Block();
