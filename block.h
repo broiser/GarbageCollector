@@ -8,13 +8,14 @@
 #include "descriptors/typeDescriptor.h"
 
 using byte = unsigned char;
+using Pointer = byte *;
 
 class Block {
 public:
     TypeDescriptor *tag;
     int len;
     Block *next;
-    byte *data;
+    Pointer data;
 
     void initData() {
         data = new byte[len];

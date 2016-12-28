@@ -3,6 +3,7 @@
 #include "descriptors/studentDescriptor.h"
 #include "descriptors/lectureNodeDescriptor.h"
 #include "descriptors/lectrueDescriptor.h"
+#include "descriptors/stringDescriptor.h"
 
 #include "entities/studentList.h"
 #include "entities/studentNode.h"
@@ -18,27 +19,26 @@ int main() {
     StudentDescriptor *studentDescriptor = new StudentDescriptor();
     LectureNodeDescriptor *lectureNodeDescriptor = new LectureNodeDescriptor();
     LectureDescriptor *lectureDescriptor = new LectureDescriptor();
+    StringDescriptor *stringDescriptor = new StringDescriptor();
 
+    Heap::registered("String", stringDescriptor);
     Heap::registered("StudentList", studentListDescriptor);
     Heap::registered("StudentNode", studentNodeDescriptor);
     Heap::registered("Student", studentDescriptor);
-
     Heap::registered("LectureNode", lectureNodeDescriptor);
     Heap::registered("Lecture", lectureDescriptor);
 
-    Student* student = (Student*) Heap::alloc("Student");
-    printf("Adr: %p", student);
-    //StudentList* studentList = (StudentList *) Heap::alloc("StudentList");
+    StudentList *studentList = (StudentList *) Heap::alloc("StudentList");
+    StudentNode *studentNode = (StudentNode *) Heap::alloc("StudentNode");
+    studentNode->stud = (Student *) Heap::alloc("Student");
+    studentNode->stud->name = (string *) Heap::alloc("String");
+    studentList->add(studentNode);
 
-    //Block* block = new Block();
-    //block->tag = (int *) &studentDescriptor;
-    //block->setFree(true);
-    //bool free = block->isFree();
-    //block->setFree(false);
-    //bool free2 = block->isFree();
-    //block->setMarked(true);
-    //bool marked = block->isMarked();
-    //block->setMarked(false);
-    //bool marked2 = block->isMarked();
+    Pointer roots[2];
+    roots[0] = (byte *) studentList;
+    roots[1] = NULL;
+
+    Heap::gc(roots);
+
     return 0;
 }

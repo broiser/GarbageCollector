@@ -1,19 +1,18 @@
 //
-// Created by Jürgen Ratzenböck on 27/12/2016.
+// Created by prolog on 28.12.16.
 //
 
-
-#ifndef GARBAGECOLLECTOR_LECTRUEDESCRIPTOR_H
-#define GARBAGECOLLECTOR_LECTRUEDESCRIPTOR_H
+#ifndef GARBAGECOLLECTOR_STRINGDESCRIPTOR_H
+#define GARBAGECOLLECTOR_STRINGDESCRIPTOR_H
 
 #include "typeDescriptor.h"
 
 class StringDescriptor : public TypeDescriptor {
 public:
-    StringDescriptor() : TypeDescriptor(8) {
+    StringDescriptor() : TypeDescriptor(12) {
         pointers = new int[1];
         pointers[0] = -4;
     }
 };
 
-#endif //GARBAGECOLLECTOR_LECTRUEDESCRIPTOR_H
+#endif //GARBAGECOLLECTOR_STRINGDESCRIPTOR_H

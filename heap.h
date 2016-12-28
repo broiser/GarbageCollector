@@ -10,16 +10,20 @@
 #include "block.h"
 #include <string>
 #include <map>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
+#include <malloc.h>
 
 using namespace std;
 
 class Heap {
     using TypeDescriptorMap = map<string, TypeDescriptor *>;
 public:
-    static byte *alloc(string name) {
+    static void gc(Pointer *pointers) {
+        for (int index = 0; pointers[index] != NULL; index++) {
+            mark(pointers[index]);
+        }
+    }
+
+    static Pointer alloc(string name) {
         TypeDescriptor *typeDescriptor = descriptors[name];
         Block *allocBlock = alloc(typeDescriptor);
         return allocBlock->data;
@@ -29,19 +33,19 @@ public:
         descriptors[name] = typeDescriptor;
     }
 
-public:
-    static Block* createBlock(byte* data, int len) {
-        Block *block = (Block *) data;
-        block->len = len;
-        block->next = block;
-        TypeDescriptor *dummyDescriptor = new DummyDescriptor();
-        block->tag = dummyDescriptor;
-        block->setFree(true);
-        return block;
-    }
 private:
     static TypeDescriptorMap descriptors;
     static Block *free;
+
+    static Block *createBlock(byte *data, int len) {
+        Block *block = (Block *) data;
+        block->len = len;
+        block->next = block;
+        block->initData();
+        block->tag = new DummyDescriptor();
+        block->setFree(true);
+        return block;
+    }
 
     static Block *alloc(TypeDescriptor *typeDescriptor) {
         int size = typeDescriptor->objSize;
@@ -58,7 +62,7 @@ private:
             Block *p = free;
             int newLen = p->len - (size + 4);
             if (newLen >= 8) { // split block
-                p = p - 4 + p->len - size; // add new block with pointer arithmetic
+                p = (Block *) ((uintptr_t) p - 4 + p->len - size); // add new block with pointer arithmetic
                 p->len = size + 4;
                 free->len = newLen;
             } else if (free == prev) { // last free block
@@ -73,6 +77,10 @@ private:
             p->setFree(false);
             return p;
         }
+    }
+
+    static void mark(Pointer pointer) {
+        printf("%p \n", pointer);
     }
 };
 

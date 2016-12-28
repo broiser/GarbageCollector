@@ -10,7 +10,7 @@
 class LectureNode {
 public:
     LectureNode *next;
-    Lecture lect;
+    Lecture *lect;
 };
 
 #endif //GARBAGECOLLECTOR_LECTNODE_H

@@ -8,32 +8,35 @@
 #include "studentNode.h"
 
 class StudentList {
-
+private:
+    bool equalStudent(StudentNode *studentNode1, StudentNode *studentNode2) {
+        return studentNode1->stud->id == studentNode2->stud->id;
+    }
 public:
     StudentNode *first = NULL;
 
-    void add(Student student) {
+    void add(StudentNode *studentNode) {
         if (first == NULL) {
-            first = new StudentNode(student);
+            first = studentNode;
         } else {
             StudentNode *current = first;
             while (current->next != NULL) {
                 current = current->next;
             }
-            current->next = new StudentNode(student);
+            current->next = studentNode;
         }
     }
 
-    void remove(Student student) {
+    void remove(StudentNode *studentNode) {
         if (first == NULL) {
             return;
-        } else if (first->stud.id == student.id) {
+        } else if (equalStudent(first, studentNode)) {
             first = first->next;
         } else {
             StudentNode *current = (first)->next;
             StudentNode *previous = first;
             while (current != NULL && previous != NULL) {
-                if (current->stud.id == student.id) {
+                if (equalStudent(current, studentNode)) {
                     previous->next = current->next;
                     return;
                 }

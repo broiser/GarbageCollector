@@ -10,9 +10,9 @@
 class StudentNode {
 public:
     StudentNode *next = NULL;
-    Student stud;
+    Student *stud;
 
-    StudentNode(Student student) {
+    StudentNode(Student *student) {
         stud = student;
     }
 };
