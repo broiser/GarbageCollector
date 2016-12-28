@@ -8,9 +8,11 @@
 #include "descriptors/typeDescriptor.h"
 #include "descriptors/dummyDescriptor.h"
 #include "block.h"
+
+#include <stdlib.h>
 #include <string>
 #include <map>
-#include <malloc.h>
+
 
 using namespace std;
 
