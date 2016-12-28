@@ -5,13 +5,15 @@
 #ifndef GARBAGECOLLECTOR_TYPEDESCRIPTOR_H
 #define GARBAGECOLLECTOR_TYPEDESCRIPTOR_H
 
+#define TAG_LENGTH 0
+
 class TypeDescriptor {
 public:
     int objSize;
     int *pointers;
 
     TypeDescriptor(int size){
-        objSize = size;
+        objSize = size + TAG_LENGTH;
     };
 };
 

@@ -7,6 +7,11 @@
 
 #include "descriptors/typeDescriptor.h"
 
+#define OFFSET_TAG 0
+#define OFFSET_LENGTH 4
+#define OFFSET_NEXT 8
+#define OFFSET_DATA 12
+
 using byte = unsigned char;
 using Pointer = byte *;
 
@@ -17,21 +22,8 @@ public:
     Block *next;
     Pointer data;
 
-    void initData() {
-        data = new byte[len];
-        for (int i = 0; i < len; i++) {
-            *(data + i) = 0;
-        }
-    }
-
     bool isFree() {
-        uintptr_t address = (uintptr_t) tag;
-        return ((address) & 2) == 2;
-    }
-
-    bool isMarked() {
-        uintptr_t address = (uintptr_t) tag;
-        return ((address) & 1) == 1;
+        return (((uintptr_t) tag) & 2) == 2;
     }
 
     void setFree(bool free) {
@@ -42,6 +34,10 @@ public:
             address = address & ~(1 << 1);
         }
         tag = (TypeDescriptor *) address;
+    }
+
+    bool isMarked() {
+        return (((uintptr_t) tag) & 1) == 1;
     }
 
     void setMarked(bool marked) {

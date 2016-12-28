@@ -26,7 +26,7 @@ public:
     static Pointer alloc(string name) {
         TypeDescriptor *typeDescriptor = descriptors[name];
         Block *allocBlock = alloc(typeDescriptor);
-        return allocBlock->data;
+        return (Pointer) ((uintptr_t) allocBlock + OFFSET_DATA);
     }
 
     static void registered(string name, TypeDescriptor *typeDescriptor) {
@@ -38,32 +38,38 @@ private:
     static Block *free;
 
     static Block *createBlock(byte *data, int len) {
+        initData(data, len);
         Block *block = (Block *) data;
         block->len = len;
         block->next = block;
-        block->initData();
-        block->tag = new DummyDescriptor();
+        block->tag = 0;
         block->setFree(true);
         return block;
     }
 
+    static void initData(byte *data, int length) {
+        for (int i = 0; i < length; i++) {
+            *(data + i) = 0;
+        }
+    }
+
     static Block *alloc(TypeDescriptor *typeDescriptor) {
-        int size = typeDescriptor->objSize;
+        int size = typeDescriptor->objSize + OFFSET_DATA;
         Block *start = free;
         Block *prev = free;
         free = free->next;
-        while (free->len < size + 4 && free != start) {
+        while (free->len < size && free != start) {
             prev = free;
             free = free->next;
         }
-        if (free->len < size + 4) {
+        if (free->len < size) {
             throw new bad_alloc;
         } else {
             Block *p = free;
-            int newLen = p->len - (size + 4);
+            int newLen = p->len - size;
             if (newLen >= 8) { // split block
-                p = (Block *) ((uintptr_t) p - 4 + p->len - size); // add new block with pointer arithmetic
-                p->len = size + 4;
+                p = (Block *) ((uintptr_t) p + p->len - size); // add new block with pointer arithmetic
+                p->len = size;
                 free->len = newLen;
             } else if (free == prev) { // last free block
                 free = NULL;
@@ -71,8 +77,8 @@ private:
                 prev->next = free->next;
                 free = prev;
             }
-            //Set all data bytes in block p to 0
-            p->initData();
+            //Set all data bytes in block p to
+            initData((byte *) &p->data, size - OFFSET_DATA);
             p->tag = typeDescriptor;
             p->setFree(false);
             return p;

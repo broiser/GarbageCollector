@@ -31,7 +31,7 @@ int main() {
     StudentList *studentList = (StudentList *) Heap::alloc("StudentList");
     StudentNode *studentNode = (StudentNode *) Heap::alloc("StudentNode");
     studentNode->stud = (Student *) Heap::alloc("Student");
-    studentNode->stud->name = (string *) Heap::alloc("String");
+    studentNode->stud->name = (string *) Heap::alloc("String");;
     studentList->add(studentNode);
 
     Pointer roots[2];
