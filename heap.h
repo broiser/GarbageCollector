@@ -19,8 +19,7 @@ using namespace std;
 class Heap {
     using TypeDescriptorMap = map<string, TypeDescriptor *>;
 public:
-    static void gc(Pointer *pointers) {
-
+    static void gc(Pointer pointers[]) {
         for (int index = 0; pointers[index] != NULL; index++) {
             Pointer pointer = pointers[index];
             mark((Block *) ((uintptr_t) pointer - OFFSET_DATA));
@@ -90,33 +89,37 @@ private:
         }
     }
 
-
     // TODO
     static void mark(Block *current) {
         printf("Mark: %p \n", current);
         Block *prev = NULL;
         current->setMarked(true);
         for (;;) {
-            current->getTypeDescriptor();
+            current->tag = current->getTypeDescriptor();
             current->tag = current->tag + 4;
-            int off = *reinterpret_cast<int *>(current->getTypeDescriptor());
+            uintptr_t currentAddress = (uintptr_t) current->tag;
+            int off = *reinterpret_cast<int *>(currentAddress);
             printf("Offset: %d \n", off);
             if (off >= 0) { // advance
-                /*int parentAddress = current + off; p = memory[padr];
-                if (p != null && !p.marked) {
-                    memory[padr] = prev; prev = cur; cur = p;
-                    setMark(cur);
-                }*/
+                uintptr_t parentAddress = ((uintptr_t) current) + off;
+                Block *p = (Block *) parentAddress;
+                if (p != NULL && !p->isMarked()) {
+                    p = prev;
+                    prev = current;
+                    current = p;
+                    current->setMarked(true);
+                }
             } else { // off < 0: retreat
-                current->tag = current->tag += off; // restore tag
-                if (prev == NULL) { return; }
-                /*p = cur;
-                cur = prev;
-                off = memory[cur.tag];
-                padr = cur + off;
-                prev = memory[padr];
-                memory[padr] = p;
-                */
+                current->tag = current->tag + off; // restore tag
+                if (prev == NULL) {
+                    return;
+                }
+                Block *p = current;
+                current = prev;
+                uintptr_t currentAddress = (uintptr_t) current->tag;
+                off = *reinterpret_cast<int *>(currentAddress);
+                uintptr_t parentAddress = ((uintptr_t) current) + off;
+                prev = (Block *) parentAddress;
             }
         }
     }

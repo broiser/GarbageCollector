@@ -48,7 +48,6 @@ public:
             address = address & ~(1 << 0);
         }
         tag = (TypeDescriptor *) address;
-        TypeDescriptor *desc = getTypeDescriptor();
     }
 
     TypeDescriptor* getTypeDescriptor() {
