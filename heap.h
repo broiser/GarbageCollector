@@ -15,26 +15,28 @@
 
 
 using namespace std;
+using Tag = TypeDescriptor *;
 
 class Heap {
     using TypeDescriptorMap = map<string, TypeDescriptor *>;
 public:
     static void gc(Pointer pointers[]) {
         for (int index = 0; pointers[index] != NULL; index++) {
-            Pointer pointer = pointers[index];
-            mark((Block *) ((uintptr_t) pointer - OFFSET_DATA));
+            mark(pointers[index]);
         }
     }
 
     static Pointer alloc(string name) {
         TypeDescriptor *typeDescriptor = descriptors[name];
         Block *allocBlock = alloc(typeDescriptor);
-        printf("Alloc: %p \n", allocBlock);
-        return (Pointer) ((uintptr_t) allocBlock + OFFSET_DATA);
+        printf("Alloc:\n");
+        printf("Block: %p \n", allocBlock);
+        return determinePointer(allocBlock);
     }
 
     static void registered(string name, TypeDescriptor *typeDescriptor) {
         descriptors[name] = typeDescriptor;
+        printf("descriptor: %p \n", typeDescriptor);
     }
 
 private:
@@ -82,46 +84,63 @@ private:
                 free = prev;
             }
             //Set all data bytes in block p to
-            initData((byte *) &p->data, size - OFFSET_DATA);
+            initData(determinePointer(p), size - OFFSET_DATA);
             p->tag = typeDescriptor;
             p->setFree(false);
             return p;
         }
     }
 
-    // TODO
-    static void mark(Block *current) {
-        printf("Mark: %p \n", current);
-        Block *prev = NULL;
-        current->setMarked(true);
+    static void mark(Pointer current) {
+        determineBlock(current)->setMarked(true);
+        Pointer prev = NULL;
+
+        printf("Mark Block: %p \n", determineBlock(current));
+        printf("Mark Tag: %p \n", determineBlock(current)->tag);
+
         for (;;) {
-            current->tag = current->getTypeDescriptor();
-            current->tag = current->tag + 4;
-            uintptr_t currentAddress = (uintptr_t) current->tag;
-            int off = *reinterpret_cast<int *>(currentAddress);
+            determineBlock(current)->tag = (Tag) ((uintptr_t) determineBlock(current)->tag + 4);
+            int off = *reinterpret_cast<int *>((uintptr_t) determineBlock(current)->tag - 1);
             printf("Offset: %d \n", off);
             if (off >= 0) { // advance
-                uintptr_t parentAddress = ((uintptr_t) current) + off;
-                Block *p = (Block *) parentAddress;
-                if (p != NULL && !p->isMarked()) {
-                    p = prev;
-                    prev = current;
-                    current = p;
-                    current->setMarked(true);
+                uintptr_t parentAddress = (uintptr_t) current + off;
+                Pointer p = (Pointer) *reinterpret_cast<Pointer *>(parentAddress);
+                if (p != NULL && !determineBlock(p)->isMarked()) {
+                    Pointer parent = (Pointer) parentAddress;
+                    printf("Parent: %p\n", parent);
+                    parent = (Pointer) ((uintptr_t) prev);      //Not working
+                    prev = (Pointer) ((uintptr_t) current);
+                    current = (Pointer) ((uintptr_t) p);
+                    printf("Mark Block: %p \n", determineBlock(current));
+                    printf("Mark Tag: %p \n", determineBlock(current)->tag);
+                    determineBlock(current)->setMarked(true);
                 }
             } else { // off < 0: retreat
-                current->tag = current->tag + off; // restore tag
+                //printf("Tag: %p\n", determineBlock(current)->tag);
+                determineBlock(current)->tag = (Tag) ((uintptr_t) determineBlock(current)->tag + off); // restore tag
+                printf("Restored Tag: %p\n", determineBlock(current)->tag);
                 if (prev == NULL) {
                     return;
                 }
-                Block *p = current;
-                current = prev;
-                uintptr_t currentAddress = (uintptr_t) current->tag;
-                off = *reinterpret_cast<int *>(currentAddress);
-                uintptr_t parentAddress = ((uintptr_t) current) + off;
-                prev = (Block *) parentAddress;
+                Pointer p = (Pointer) ((uintptr_t) current);
+                current = (Pointer) ((uintptr_t) prev);
+                off = *reinterpret_cast<int *>((uintptr_t) determineBlock(current)->tag - 1);
+                printf("Offset: %d \n", off);
+                uintptr_t parentAddress = (uintptr_t) current + off;
+                Pointer prev = (Pointer) parentAddress;                 // Now working
+                Pointer parent = (Pointer) parentAddress;
+                printf("Parent: %p\n", parent);
+                parent = (Pointer) ((uintptr_t) p);
             }
         }
+    }
+
+    static Pointer determinePointer(Block *block) {
+        return (Pointer) block + OFFSET_DATA;
+    }
+
+    static Block *determineBlock(Pointer pointer) {
+        return (Block *) ((uintptr_t) pointer - OFFSET_DATA);
     }
 };
 
@@ -130,6 +149,6 @@ Heap::TypeDescriptorMap Heap::descriptors = [] {
     return ret;
 }();
 
-Block *Heap::free = Heap::createBlock((byte *) calloc(32 * 1024, sizeof(byte)), 32 * 1024);
+Block *Heap::free = Heap::createBlock((byte *) malloc(32 * 1024 * sizeof(byte)), 32 * 1024);
 
 #endif //GARBAGECOLLECTOR_HEAP_H

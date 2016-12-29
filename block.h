@@ -8,9 +8,9 @@
 #include "descriptors/typeDescriptor.h"
 
 #define OFFSET_TAG 0
-#define OFFSET_LENGTH 4
-#define OFFSET_NEXT 8
-#define OFFSET_DATA 12
+#define OFFSET_LENGTH 8
+#define OFFSET_NEXT 12
+#define OFFSET_DATA 20
 
 using byte = unsigned char;
 using Pointer = byte *;
