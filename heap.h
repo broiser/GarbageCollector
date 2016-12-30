@@ -12,7 +12,6 @@
 #include <string>
 #include <map>
 
-
 using namespace std;
 using Tag = TypeDescriptor *;
 
@@ -107,7 +106,8 @@ private:
                 if (p != NULL && !determineBlock(p)->isMarked()) {
                     Pointer parent = (Pointer) parentAddress;
                     printf("Parent: %p\n", parent);
-                    parent = (Pointer) ((uintptr_t) prev);      //Not working
+                    parent = (Pointer) ((uintptr_t) prev);
+
                     prev = (Pointer) ((uintptr_t) current);
                     current = (Pointer) ((uintptr_t) p);
                     determineBlock(current)->setMarked(true);
@@ -116,10 +116,9 @@ private:
                     printf("Mark Tag: %p \n", determineBlock(current)->tag);
                 }
             } else { // off < 0: retreat
-                //printf("Tag: %p\n", determineBlock(current)->tag);
                 determineBlock(current)->tag = (Tag) ((uintptr_t) determineBlock(current)->tag + off); // restore tag
                 printf("Restored Tag: %p\n", determineBlock(current)->tag);
-                if (prev == NULL) {
+                if (prev == NULL || prev == nullptr) {
                     return;
                 }
                 Pointer p = (Pointer) ((uintptr_t) current);
@@ -127,7 +126,7 @@ private:
                 off = *reinterpret_cast<int *>((uintptr_t) determineBlock(current)->tag - 1);
                 printf("Offset: %d \n", off);
                 uintptr_t parentAddress = (uintptr_t) current + off;
-                Pointer prev = (Pointer) parentAddress;                 // Now working
+                Pointer prev = (Pointer) *reinterpret_cast<Pointer *>(parentAddress);          // Now working
                 Pointer parent = (Pointer) parentAddress;
                 printf("Parent: %p\n", parent);
                 parent = (Pointer) ((uintptr_t) p);
