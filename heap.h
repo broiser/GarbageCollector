@@ -6,7 +6,6 @@
 #define GARBAGECOLLECTOR_HEAP_H
 
 #include "descriptors/typeDescriptor.h"
-#include "descriptors/dummyDescriptor.h"
 #include "block.h"
 
 #include <stdlib.h>
@@ -111,9 +110,10 @@ private:
                     parent = (Pointer) ((uintptr_t) prev);      //Not working
                     prev = (Pointer) ((uintptr_t) current);
                     current = (Pointer) ((uintptr_t) p);
+                    determineBlock(current)->setMarked(true);
+
                     printf("Mark Block: %p \n", determineBlock(current));
                     printf("Mark Tag: %p \n", determineBlock(current)->tag);
-                    determineBlock(current)->setMarked(true);
                 }
             } else { // off < 0: retreat
                 //printf("Tag: %p\n", determineBlock(current)->tag);

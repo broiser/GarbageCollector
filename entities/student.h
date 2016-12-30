@@ -10,7 +10,7 @@
 class Student{
 public:
     int id;
-    string *name;
+    string name;
     LectureNode* lect;
 
     void add(Lecture lecture){
