@@ -8,8 +8,9 @@
 #include "descriptors/typeDescriptor.h"
 #include "block.h"
 
-#include <stdlib.h>
+#include <stdio.h>
 #include <string>
+#include <cstring>
 #include <map>
 
 using namespace std;
@@ -55,9 +56,7 @@ private:
     }
 
     static void initData(byte *data, int length) {
-        for (int i = 0; i < length; i++) {
-            *(data + i) = 0;
-        }
+        memset(data, NULL, length);
     }
 
     static Block *alloc(TypeDescriptor *typeDescriptor) {
@@ -108,9 +107,8 @@ private:
                 Pointer p = (Pointer) *reinterpret_cast<Pointer *>(parentAddress);
                 if (p != NULL && !determineBlock(p)->isMarked()) {
                     Pointer parent = (Pointer) parentAddress;
-                    printf("Parent: %p\n", parent);
                     parent = (Pointer) ((uintptr_t) prev);
-
+                    printf("Parent: %p\n", parent);
                     prev = (Pointer) ((uintptr_t) current);
                     current = (Pointer) ((uintptr_t) p);
                     determineBlock(current)->setMarked(true);
@@ -121,7 +119,7 @@ private:
             } else { // off < 0: retreat
                 determineBlock(current)->tag = (Tag) ((uintptr_t) determineBlock(current)->tag + off); // restore tag
                 printf("Restored Tag: %p\n", determineBlock(current)->tag);
-                if (prev == NULL || prev == nullptr) {
+                if ( prev == NULL || *prev == NULL) {
                     return;
                 }
                 Pointer p = (Pointer) ((uintptr_t) current);
@@ -129,7 +127,7 @@ private:
                 off = *reinterpret_cast<int *>((uintptr_t) determineBlock(current)->tag - 1);
                 printf("Offset: %d \n", off);
                 uintptr_t parentAddress = (uintptr_t) current + off;
-                Pointer prev = (Pointer) *reinterpret_cast<Pointer *>(parentAddress);          // Now working
+                prev = (Pointer) (uintptr_t) (*reinterpret_cast<Pointer *>(parentAddress));          // Now working
                 Pointer parent = (Pointer) parentAddress;
                 printf("Parent: %p\n", parent);
                 parent = (Pointer) ((uintptr_t) p);
