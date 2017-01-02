@@ -22,6 +22,7 @@ public:
         for (int index = 0; pointers[index] != NULL; index++) {
             mark(pointers[index]);
         }
+        sweep();
     }
 
     static Pointer alloc(string name) {
@@ -38,13 +39,15 @@ public:
     }
 
 private:
+    static uintptr_t heapStart, heapEnd;
     static TypeDescriptorMap descriptors;
     static Block *free;
 
-    static Block *createBlock(byte *data, int len) {
-        initData(data, len);
+    static Block *createBlock(int size) {
+        byte *data = (byte *) calloc(size, sizeof(byte));
+        initData(data, size);
         Block *block = (Block *) data;
-        block->len = len;
+        block->len = size;
         block->next = block;
         block->tag = 0;
         block->setFree(true);
@@ -134,6 +137,28 @@ private:
         }
     }
 
+    static void sweep() {
+        Pointer p = determinePointer((Block *) heapStart);
+        free = NULL;
+        while ((uintptr_t) p < heapEnd) {
+            if (determineBlock(p)->isMarked()) {
+                determineBlock(p)->setMarked(false);
+            } else { // free: collect p
+                int size = determineBlock(p)->len;
+                Pointer q = (Pointer) (uintptr_t) p + size;
+                while ((uintptr_t) q < heapEnd && !determineBlock(q)->isMarked()) {
+                    size += determineBlock(q)->len; // merge
+                    q = (Pointer) (uintptr_t) q + determineBlock(q)->len;
+                }
+                determineBlock(p)->tag = (Tag) p;
+                determineBlock(p)->len = size;
+                determineBlock(p)->next = free;
+                free = (Block *) (uintptr_t) p;
+            }
+            p += (uintptr_t) determineBlock(p)->len;
+        }
+    }
+
     static Pointer determinePointer(Block *block) {
         return (Pointer) block + OFFSET_DATA;
     }
@@ -148,6 +173,8 @@ Heap::TypeDescriptorMap Heap::descriptors = [] {
     return ret;
 }();
 
-Block *Heap::free = Heap::createBlock((byte *) malloc(32 * 1024 * sizeof(byte)), 32 * 1024);
+Block *Heap::free = Heap::createBlock(32 * 1024);
+uintptr_t Heap::heapEnd = (uintptr_t) Heap::free + (32 * 1024);
+uintptr_t Heap::heapStart = (uintptr_t) Heap::free;
 
 #endif //GARBAGECOLLECTOR_HEAP_H
