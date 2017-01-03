@@ -5,8 +5,13 @@
 #ifndef GARBAGECOLLECTOR_TYPEDESCRIPTOR_H
 #define GARBAGECOLLECTOR_TYPEDESCRIPTOR_H
 
+#include "string"
+
+using namespace std;
+
 class TypeDescriptor {
 public:
+//    string typeName;
     int objSize;
     int *pointers;
 };

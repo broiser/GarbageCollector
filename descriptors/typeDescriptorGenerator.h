@@ -10,10 +10,10 @@
 class TypeDescriptorGenerator {
 public :
     static TypeDescriptor *createStudentDescriptor() {
-        int *descriptor = new int[4];
-        descriptor[0] = 42;
+        int *descriptor = new int[3];
+        descriptor[0] = 44;
         descriptor[1] = 36;
-        descriptor[3] = -8;
+        descriptor[2] = -8;
         return (TypeDescriptor *) descriptor;
     }
 

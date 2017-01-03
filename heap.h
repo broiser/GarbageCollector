@@ -9,6 +9,7 @@
 #include "block.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <cstring>
 #include <map>
@@ -35,8 +36,30 @@ public:
     }
 
     static void registered(string name, TypeDescriptor *typeDescriptor) {
+//        typeDescriptor->typeName = name;
         descriptors[name] = typeDescriptor;
         printf("descriptor: %p \n", typeDescriptor);
+    }
+
+    static void dump() {
+        printf("List of all live objects\n");
+        Pointer p = determinePointer((Block *) heapStart);
+        while ((uintptr_t) p < heapEnd) {
+            Block *currentBlock = (Block *) determineBlock(p);
+            printf("Size of block: %d \n", currentBlock->len);
+            if (!currentBlock->isFree()) {
+                printf("Block address: %p \n", currentBlock);
+                printf("Data address: %p \n", p);
+                printf("Data (first 4 bytes): ");
+                for (int i = 0; i < 4; i++) {
+                    printf("%p, ", p[i]);
+                }
+                printf("\nPointers in this object: ");
+                printf("First pointer: %p \n", currentBlock->tag->pointers);
+                printf("Second pointer: %p \n", currentBlock->tag->pointers + 4);
+            }
+            p += (uintptr_t) currentBlock->len;
+        }
     }
 
 private:
@@ -83,7 +106,7 @@ private:
                 prev->next = free->next;
                 free = prev;
             }
-            //Set all data bytes in block p to
+            //Set all data bytes in block p to 0
             initData(determinePointer(p), size - OFFSET_DATA);
             p->tag = typeDescriptor;
             p->setFree(false);
@@ -95,11 +118,15 @@ private:
         determineBlock(current)->setMarked(true);
         Pointer prev = NULL;
 
-        printf("Mark Block: %p \n", determineBlock(current));
-        printf("Mark Tag: %p \n", determineBlock(current)->tag);
+        printf("Current data 1: %p \n", current);
+        printf("Mark Block 1: %p \n", determineBlock(current));
+        printf("Mark Tag 1: %p \n", determineBlock(current)->tag);
 
         for (;;) {
             determineBlock(current)->tag = (Tag) ((uintptr_t) determineBlock(current)->tag + 4);
+            printf("Current data: %p \n", current);
+            printf("Current tag: %p \n", determineBlock(current)->tag);
+            printf("pointers[0]: %p \n", determineBlock(current)->tag->pointers);
             int off = *reinterpret_cast<int *>((uintptr_t) determineBlock(current)->tag - 1);
             printf("Offset: %d \n", off);
             if (off >= 0) { // advance
@@ -137,20 +164,25 @@ private:
 
     static void sweep() {
         Pointer p = determinePointer((Block *) heapStart);
+        printf("Heap start of data: %p \n", p);
         free = NULL;
         while ((uintptr_t) p < heapEnd) {
             if (determineBlock(p)->isMarked()) {
                 determineBlock(p)->setMarked(false);
+                printf("Mark bit cleared for %p \n", p);
             } else { // free: collect p
                 int size = determineBlock(p)->len;
+                printf("Size of block with data address %p to collect: %d \n", p, size);
                 Pointer q = (Pointer) (uintptr_t) p + size;
                 while ((uintptr_t) q < heapEnd && !determineBlock(q)->isMarked()) {
                     size += determineBlock(q)->len; // merge
+                    printf("Size after merge: %d \n", size);
                     q = (Pointer) (uintptr_t) q + determineBlock(q)->len;
                 }
                 determineBlock(p)->tag = (Tag) p;
                 determineBlock(p)->len = size;
                 determineBlock(p)->next = free;
+                determineBlock(p)->setFree(true);
                 free = (Block *) (uintptr_t) p;
             }
             p += (uintptr_t) determineBlock(p)->len;
