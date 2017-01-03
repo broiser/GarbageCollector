@@ -11,8 +11,8 @@ using namespace std;
 
 class TypeDescriptor {
 public:
-//    string typeName;
     int objSize;
+//    char *typeName;
     int *pointers;
 };
 

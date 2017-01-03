@@ -10,18 +10,22 @@ int main() {
     TypeDescriptor *lectureDescriptor = TypeDescriptorGenerator::createLectureDescriptor();
     TypeDescriptor *lectureNodeDescriptor = TypeDescriptorGenerator::createLectureNodeDescriptor();
 
-    Heap::registered("Student", studentDescriptor);
-    Heap::registered("StudentNode", studentNodeDescriptor);
-    Heap::registered("StudentList", studentListDescriptor);
-    Heap::registered("Lecture", lectureDescriptor);
-    Heap::registered("LectureNode", lectureNodeDescriptor);
+    char studentType[32] = "Student";
+    char studentNodeType[32] = "StudentNode";
+    char studentListType[32] = "StudentList";
+    char lectureType[32] = "Lecture";
+    char lectureNodeType[32] = "LectureNode";
 
-    StudentList *studentList = (StudentList *) Heap::alloc("StudentList");
-    StudentNode *studentNode = (StudentNode *) Heap::alloc("StudentNode");
+    Heap::registered(studentType, studentDescriptor);
+    Heap::registered(studentNodeType, studentNodeDescriptor);
+    Heap::registered(studentListType, studentListDescriptor);
+    Heap::registered(lectureType, lectureDescriptor);
+    Heap::registered(lectureNodeType, lectureNodeDescriptor);
 
-    Heap::dump();
+    StudentList *studentList = (StudentList *) Heap::alloc(studentListType);
+    StudentNode *studentNode = (StudentNode *) Heap::alloc(studentNodeType);
 
-    Student *student = (Student *) Heap::alloc("Student");
+    Student *student = (Student *) Heap::alloc(studentType);
     printf("Student after alloc: %p", student);
     studentNode->stud = student;
     studentNode->stud->id = 1;
@@ -29,17 +33,29 @@ int main() {
     printf("Student id: %d \n", studentNode->stud->id);
     studentList->add(studentNode);
 
-
-    studentNode->stud = NULL;
-
     Pointer roots[2];
     roots[0] = (Pointer) studentList;
     roots[1] = NULL;
 
-//    Heap::gc(roots);
+    printf("First run\n\n");
+    Heap::gc(roots);
+    Heap::dump();
 
-//    LectureNode *lectureNode = (LectureNode *) Heap::alloc("LectureNode");
+    studentNode->stud = NULL;
+
+    printf("Second run\n\n");
+    Heap::gc(roots);
+    Heap::dump();
+
+    roots[0] = NULL;
+
+    printf("Third run\n\n");
+    Heap::gc(roots);
+//    LectureNode *lectureNode = (LectureNode *) Heap::alloc(lectureNodeType);
+//    Lecture *lecture = (Lecture *) Heap::alloc(lectureType);
 //    studentNode->stud->add(lectureNode);
+    Heap::dump();
+
 
     return 0;
 }

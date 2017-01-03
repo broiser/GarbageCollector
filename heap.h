@@ -18,7 +18,7 @@ using namespace std;
 using Tag = TypeDescriptor *;
 
 class Heap {
-    using TypeDescriptorMap = map<string, TypeDescriptor *>;
+    using TypeDescriptorMap = map<char *, TypeDescriptor *>;
 public:
     static void gc(Pointer pointers[]) {
         for (int index = 0; pointers[index] != NULL; index++) {
@@ -27,39 +27,24 @@ public:
         sweep();
     }
 
-    static Pointer alloc(string name) {
+    static Pointer alloc(char *name) {
         TypeDescriptor *typeDescriptor = descriptors[name];
         Block *allocBlock = alloc(typeDescriptor);
+        allocBlock->type = name;
         printf("Alloc:\n");
         printf("Block: %p \n", allocBlock);
         return determinePointer(allocBlock);
     }
 
-    static void registered(string name, TypeDescriptor *typeDescriptor) {
+    static void registered(char *name, TypeDescriptor *typeDescriptor) {
 //        typeDescriptor->typeName = name;
         descriptors[name] = typeDescriptor;
         printf("descriptor: %p \n", typeDescriptor);
     }
 
     static void dump() {
-        printf("List of all live objects\n");
-        Pointer p = determinePointer((Block *) heapStart);
-        while ((uintptr_t) p < heapEnd) {
-            Block *currentBlock = (Block *) determineBlock(p);
-            printf("Size of block: %d \n", currentBlock->len);
-            if (!currentBlock->isFree()) {
-                printf("Block address: %p \n", currentBlock);
-                printf("Data address: %p \n", p);
-                printf("Data (first 4 bytes): ");
-                for (int i = 0; i < 4; i++) {
-                    printf("%p, ", p[i]);
-                }
-                printf("\nPointers in this object: ");
-                printf("First pointer: %p \n", currentBlock->tag->pointers);
-                printf("Second pointer: %p \n", currentBlock->tag->pointers + 4);
-            }
-            p += (uintptr_t) currentBlock->len;
-        }
+        dumpLiveObjects();
+        dumpFreeList();
     }
 
 private:
@@ -196,6 +181,52 @@ private:
     static Block *determineBlock(Pointer pointer) {
         return (Block *) ((uintptr_t) pointer - OFFSET_DATA);
     }
+
+    static void dumpLiveObjects() {
+        printf("List of all live objects\n");
+        printf("------------------------\n");
+        Pointer p = determinePointer((Block *) heapStart);
+        int totalMemory = 0;
+        while ((uintptr_t) p < heapEnd) {
+            Block *currentBlock = (Block *) determineBlock(p);
+            if (!currentBlock->isFree()) {
+                totalMemory += currentBlock->len;
+                printf("Block address: %p \n", currentBlock);
+                printf("Data address: %p \n", p);
+                printf("Type name: %s \n", currentBlock->type);
+                printf("Data (first 4 bytes): ");
+                for (int i = 0; i < 4; i++) {
+                    printf("%p, ", p[i]);
+                }
+                printf("\nPointers in this object: ");
+                Tag tag = (Tag) ((uintptr_t) determineBlock(p)->tag + 4);
+                int off = *reinterpret_cast<int *>((uintptr_t) tag - 1);
+                printf("%d", tag->objSize);
+                printf("%p \n", currentBlock->tag->pointers);
+                printf("Second pointer: %p \n", currentBlock->tag->pointers + 4);
+            }
+            p += (uintptr_t) currentBlock->len;
+        }
+        printf("Total amount of used memory: %d bytes \n", totalMemory);
+    }
+
+    static void dumpFreeList() {
+        printf("Freelist\n");
+        printf("------------------------\n");
+        Pointer p = determinePointer((Block *) heapStart);
+        int totalFreeMemory = 0;
+        while ((uintptr_t) p < heapEnd) {
+            Block *currentBlock = (Block *) determineBlock(p);
+            if (currentBlock->isFree()) {
+                totalFreeMemory += currentBlock->len;
+                printf("Block address: %p \n", currentBlock);
+                printf("Length of block: %d \n", currentBlock->len);
+            }
+            p += (uintptr_t) currentBlock->len;
+        }
+        printf("Total amount of free memory: %d bytes \n", totalFreeMemory);
+    }
+
 };
 
 Heap::TypeDescriptorMap Heap::descriptors = [] {

@@ -7,16 +7,18 @@
 
 #include "descriptors/typeDescriptor.h"
 
-#define OFFSET_TAG 0
-#define OFFSET_LENGTH 8
-#define OFFSET_NEXT 12
-#define OFFSET_DATA 20
+#define OFFSET_TYPE 0
+#define OFFSET_TAG 32
+#define OFFSET_LENGTH 40
+#define OFFSET_NEXT 44
+#define OFFSET_DATA 52
 
 using byte = unsigned char;
 using Pointer = byte *;
 
 class Block {
 public:
+    char *type;
     TypeDescriptor *tag;
     int len;
     Block *next;
