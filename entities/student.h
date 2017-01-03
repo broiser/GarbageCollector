@@ -15,7 +15,7 @@ private:
 public:
     int id;
     string name;
-    LectureNode *lect;
+    LectureNode *lect = NULL;
 
     Student(int id, string name, LectureNode *lect) {
         this->id = id;

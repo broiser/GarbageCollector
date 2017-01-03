@@ -24,13 +24,24 @@ int main() {
 
     StudentList *studentList = (StudentList *) Heap::alloc(studentListType);
     StudentNode *studentNode = (StudentNode *) Heap::alloc(studentNodeType);
-
     Student *student = (Student *) Heap::alloc(studentType);
-    printf("Student after alloc: %p", student);
+    LectureNode *lectureNode = (LectureNode *) Heap::alloc(lectureNodeType);
+    Lecture *lecture = (Lecture *) Heap::alloc(lectureType);
+
+    char studentName[32] = "Jürgen";
     studentNode->stud = student;
     studentNode->stud->id = 1;
-    studentNode->stud->name = "Jürgen";
-    printf("Student id: %d \n", studentNode->stud->id);
+    studentNode->stud->name = studentName;
+    printf("%p", studentNode->stud);
+
+//    char lectureName[32] = "System Software";
+//    lectureNode->lect = lecture;
+//    lectureNode->lect->id = 1;
+//    lectureNode->lect->name = lectureName;
+//    lectureNode->lect->semester = 9;
+//    student->add(lectureNode);
+//    printf("%p", student->lect);
+
     studentList->add(studentNode);
 
     Pointer roots[2];
@@ -51,11 +62,8 @@ int main() {
 
     printf("Third run\n\n");
     Heap::gc(roots);
-//    LectureNode *lectureNode = (LectureNode *) Heap::alloc(lectureNodeType);
-//    Lecture *lecture = (Lecture *) Heap::alloc(lectureType);
-//    studentNode->stud->add(lectureNode);
-    Heap::dump();
 
+    Heap::dump();
 
     return 0;
 }
