@@ -40,18 +40,18 @@ int main() {
     lectureNode1->lect->name = "System Software";
     lectureNode1->lect->semester = 9;
 
-//    lectureNode2->lect = lecture2;
-//    lectureNode2->lect->id = 2;
-//    lectureNode2->lect->name = "Multimedia Search and Retrieval";
-//    lectureNode2->lect->semester = 9;
+    lectureNode2->lect = lecture2;
+    lectureNode2->lect->id = 2;
+    lectureNode2->lect->name = "Multimedia Search and Retrieval";
+    lectureNode2->lect->semester = 9;
 
     student->add(lectureNode1);
-//    student->add(lectureNode2);
+    student->add(lectureNode2);
 
     studentList->add(studentNode);
 
     Pointer roots[2];
-    roots[0] = (Pointer) studentList;
+    roots[0] = (Pointer) studentNode;
     roots[1] = NULL;
 
     printf("First run\n\n");

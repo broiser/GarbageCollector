@@ -108,24 +108,25 @@ private:
                 uintptr_t parentAddress = (uintptr_t) current + off;
                 Pointer p = (Pointer) *reinterpret_cast<Pointer *>(parentAddress);
                 if (p != NULL && !determineBlock(p)->isMarked()) {
-                    Pointer parent = (Pointer) parentAddress;
-                    parent = (Pointer) ((uintptr_t) prev);
-                    prev = (Pointer) ((uintptr_t) current);
-                    current = (Pointer) ((uintptr_t) p);
+                    Pointer *parent = (Pointer *) parentAddress;
+                    *parent = prev;
+                    //memset(parent, *prev, 8);
+                    prev = current;
+                    current = p;
                     determineBlock(current)->setMarked(true);
                 }
             } else { // off < 0: retreat
                 determineBlock(current)->tag = (Tag) ((uintptr_t) determineBlock(current)->tag + off); // restore tag
-                if ( prev == NULL || *prev == NULL) {
+                if (prev == NULL) {
                     return;
                 }
-                Pointer p = (Pointer) ((uintptr_t) current);
-                current = (Pointer) ((uintptr_t) prev);
+                Pointer p = current;
+                current = prev;
                 off = *reinterpret_cast<int *>((uintptr_t) determineBlock(current)->tag - 1);
                 uintptr_t parentAddress = (uintptr_t) current + off;
-                prev = (Pointer) (uintptr_t) (*reinterpret_cast<Pointer *>(parentAddress));          // Now working
-                Pointer parent = (Pointer) parentAddress;
-                parent = (Pointer) ((uintptr_t) p);
+                prev = *((Pointer *) parentAddress);          // Now working
+                Pointer *parent = (Pointer *) parentAddress;
+                *parent = p;
             }
         }
     }
@@ -179,7 +180,7 @@ private:
                     printf("%b", *(p + i));
                 }
                 printf("\nPointers: ");
-                int *pointers = ((int*) ((uintptr_t) currentBlock->getTypeDescriptor() + 4));
+                int *pointers = ((int *) ((uintptr_t) currentBlock->getTypeDescriptor() + 4));
                 int off = *reinterpret_cast<int *>((uintptr_t) pointers);
                 for (int index = 0; *(pointers + index) >= 0; index++) {
                     printf("%d ", *(pointers + index));
