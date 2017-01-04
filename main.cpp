@@ -51,7 +51,7 @@ int main() {
     studentList->add(studentNode);
 
     Pointer roots[2];
-    roots[0] = (Pointer) studentNode;
+    roots[0] = (Pointer) studentList;
     roots[1] = NULL;
 
     printf("First run\n\n");

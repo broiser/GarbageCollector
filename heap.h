@@ -181,9 +181,13 @@ private:
                 }
                 printf("\nPointers: ");
                 int *pointers = ((int *) ((uintptr_t) currentBlock->getTypeDescriptor() + 4));
-                int off = *reinterpret_cast<int *>((uintptr_t) pointers);
                 for (int index = 0; *(pointers + index) >= 0; index++) {
-                    printf("%d ", *(pointers + index));
+                    int off = *(pointers + index);
+                    uintptr_t address = (uintptr_t) p + off;
+                    Pointer p = (Pointer) *reinterpret_cast<Pointer *>(address);
+                    if (p != NULL) {
+                        printf("%p ", p);
+                    }
                 }
                 i++;
                 printf("\n");
