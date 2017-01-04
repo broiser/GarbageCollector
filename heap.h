@@ -61,7 +61,7 @@ private:
     }
 
     static void initData(byte *data, int length) {
-        memset(data, NULL, length);
+        memset(data, 0, length);
     }
 
     static Block *alloc(TypeDescriptor *typeDescriptor) {
@@ -102,7 +102,7 @@ private:
 
         for (;;) {
             determineBlock(current)->tag = (Tag) ((uintptr_t) determineBlock(current)->tag + 4);
-            printf("Current block: %p", current);
+            Block *block = determineBlock(current);
             int off = *reinterpret_cast<int *>((uintptr_t) determineBlock(current)->tag - 1);
             if (off >= 0) { // advance
                 uintptr_t parentAddress = (uintptr_t) current + off;
@@ -176,11 +176,16 @@ private:
                 printf("Data address: %p \n", p);
                 printf("Data (first 4 bytes): ");
                 for (int i = 0; i < 4; i++) {
-                    printf("%p, ", p[i]);
+                    printf("%b", *(p + i));
                 }
                 printf("\nPointers: ");
-                printf("%p, %p \n\n", currentBlock->tag->pointers, currentBlock->tag->pointers + 4);
+                int *pointers = ((int*) ((uintptr_t) currentBlock->getTypeDescriptor() + 4));
+                int off = *reinterpret_cast<int *>((uintptr_t) pointers);
+                for (int index = 0; *(pointers + index) >= 0; index++) {
+                    printf("%d ", *(pointers + index));
+                }
                 i++;
+                printf("\n");
             }
             p += (uintptr_t) currentBlock->len;
         }

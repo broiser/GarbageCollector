@@ -13,15 +13,9 @@ private:
         return lectureNode1->lect->id == lectureNode2->lect->id;
     }
 public:
-    int id;
-    string name;
     LectureNode *lect = NULL;
-
-    Student(int id, string name, LectureNode *lect) {
-        this->id = id;
-        this->name = name;
-        this->lect = lect;
-    }
+    string name;
+    int id;
 
     void add(LectureNode *lectureNode){
         if (lect == NULL) {

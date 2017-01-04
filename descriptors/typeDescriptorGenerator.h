@@ -12,7 +12,7 @@ public :
     static TypeDescriptor *createStudentDescriptor() {
         int *descriptor = new int[3];
         descriptor[0] = 44;
-        descriptor[1] = 36;
+        descriptor[1] = 0;
         descriptor[2] = -8;
         return (TypeDescriptor *) descriptor;
     }

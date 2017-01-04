@@ -9,7 +9,7 @@
 
 class LectureNode {
 public:
-    LectureNode *next;
+    LectureNode *next = NULL;
     Lecture *lect;
 };
 

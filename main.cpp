@@ -25,22 +25,28 @@ int main() {
     StudentList *studentList = (StudentList *) Heap::alloc(studentListType);
     StudentNode *studentNode = (StudentNode *) Heap::alloc(studentNodeType);
     Student *student = (Student *) Heap::alloc(studentType);
-    LectureNode *lectureNode = (LectureNode *) Heap::alloc(lectureNodeType);
-    Lecture *lecture = (Lecture *) Heap::alloc(lectureType);
+    LectureNode *lectureNode1 = (LectureNode *) Heap::alloc(lectureNodeType);
+    Lecture *lecture1 = (Lecture *) Heap::alloc(lectureType);
 
-    char studentName[32] = "Jürgen";
+    LectureNode *lectureNode2 = (LectureNode*) Heap::alloc(lectureNodeType);
+    Lecture *lecture2 = (Lecture *) Heap::alloc(lectureType);
+
     studentNode->stud = student;
     studentNode->stud->id = 1;
-    studentNode->stud->name = studentName;
-    printf("%p", studentNode->stud);
+    studentNode->stud->name = "Jürgen";
 
-//    char lectureName[32] = "System Software";
-//    lectureNode->lect = lecture;
-//    lectureNode->lect->id = 1;
-//    lectureNode->lect->name = lectureName;
-//    lectureNode->lect->semester = 9;
-//    student->add(lectureNode);
-//    printf("%p", student->lect);
+    lectureNode1->lect = lecture1;
+    lectureNode1->lect->id = 1;
+    lectureNode1->lect->name = "System Software";
+    lectureNode1->lect->semester = 9;
+
+//    lectureNode2->lect = lecture2;
+//    lectureNode2->lect->id = 2;
+//    lectureNode2->lect->name = "Multimedia Search and Retrieval";
+//    lectureNode2->lect->semester = 9;
+
+    student->add(lectureNode1);
+//    student->add(lectureNode2);
 
     studentList->add(studentNode);
 
