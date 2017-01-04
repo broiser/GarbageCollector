@@ -177,7 +177,7 @@ private:
                 printf("Data address: %p \n", p);
                 printf("Data (first 4 bytes): ");
                 for (int i = 0; i < 4; i++) {
-                    printf("%b", *(p + i));
+                    printf("%x", *(p + i));
                 }
                 printf("\nPointers: ");
                 int *pointers = ((int *) ((uintptr_t) currentBlock->getTypeDescriptor() + 4));
@@ -190,7 +190,7 @@ private:
                     }
                 }
                 i++;
-                printf("\n");
+                printf("\n\n");
             }
             p += (uintptr_t) currentBlock->len;
         }
